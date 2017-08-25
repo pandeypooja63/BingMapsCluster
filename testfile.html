@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+		<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+    <script type='text/javascript'
+            src='http://www.bing.com/api/maps/mapcontrol?callback=GetMap'
+            async defer></script>
+    <script type='text/javascript'>
+    var map, infobox;
+	function GetMap() {
+        map = new Microsoft.Maps.Map('#myMap', {
+            credentials: 'AhMXRkM5njhj1HuH_hkjJEWvjPfpB4QmN24y-5q_wyYGgY_5Ow--3m1yGMID_e0F',
+			mapTypeId: Microsoft.Maps.MapTypeId.road,
+		    zoom: 3
+        });
+		//Create an infobox at the center of the map but don't show it.
+        infobox = new Microsoft.Maps.Infobox(map.getCenter(), {
+            visible: false
+        });
+        //Assign the infobox to a map instance.
+        infobox.setMap(map);		
+		// Creates a collection to store multiple pins
+		//var pins = new Microsoft.Maps.EntityCollection();
+		var pins = [];
+		var location =[{"Title" : "Pin : 1", "Latitude":41.8284867713553,"Longitude":-89.3934742184048},
+						{"Title" : "Pin : 2","Latitude":41.5804186112039,"Longitude":-87.822813028308},
+						{"Title" : "Pin : 3","Latitude":41.2743105224413,"Longitude":-88.6421180936698},
+						{"Title" : "Pin : 4","Latitude":41.3402801414583,"Longitude":-87.2673207383479},
+						{"Title" : "Pin : 5","Latitude":41.2428051839547,"Longitude":-86.1792543448348},
+						{"Title":"Pin : 6","Latitude":22.0827,"Longitude":80.2707},
+						{"Title":"Pin : 7","Latitude":24.0827,"Longitude":80.2707},
+						{"Title":"Pin : 8","Latitude":26.0827,"Longitude":80.2707},
+						{"Title":"Pin : 9","Latitude":28.0827,"Longitude":80.2707},
+						{"Title":"Pin : 10","Latitude":20.0827,"Longitude":80.2707},
+						{"Title":"Pin : 11","Latitude":22.0827,"Longitude":82.2707},
+						{"Title":"Pin : 12","Latitude":30.0827,"Longitude":80.2707},
+					    {"Title":"Pin : 13","Latitude":22.0827,"Longitude":84.2707},
+					    {"Title":"Pin : 14","Latitude":32.0827,"Longitude":84.2707},
+					    {"Title":"Pin: 15","Latitude":18.0827,"Longitude":80.2707}];
+		
+		 Microsoft.Maps.loadModule("Microsoft.Maps.Clustering", function () {
+		
+					for ( var i= 0; i< location.length ; i++) {
+						console.log(location[i]);
+						val =location[i];
+						// Capturing the long and lat from the list
+						var position = new Microsoft.Maps.Location(val.Latitude, val.Longitude) ;
+						
+						// Creating a pushpin
+						 var pin = new Microsoft.Maps.Pushpin(position, 
+						 { 
+							color : "red" ,
+							anchor : new Microsoft.Maps.Point(12,39)
+						 });
+						 
+						 console.log(pin);
+						 pin.metadata = location[i];
+						 console.log (pin.metadata);
+						 pins.push(pin);
+						 //Create a ClusterLayer with options and add it to the map.
+						clusterLayer = new Microsoft.Maps.ClusterLayer(pins);
+				
+						//Add a click event to the cluster layer to open an infobox.
+						Microsoft.Maps.Events.addHandler(clusterLayer, 'click', showInfobox);
+				
+						map.layers.insert(clusterLayer);
+						console.log("clusterLayer");
+						console.log(clusterLayer);
+						
+						}
+						console.log("Hello I am the array of pushpins ");
+						console.log(pins);
+						//Add click event to clustered pushpin
+				//		Microsoft.Maps.Events.addHandler(cluster, 'click', clusterClicked);
+		
+				});		
+		}
+	
+		function showInfobox(e) {
+			var pin = e.target;
+			console.log("target pin");
+			console.log(pin);
+			
+			//Check to see if the pushpin is a cluster.
+   			if (pin.containedPushpins) {
+				//Cluster clicked, zoom the map in.
+				var locs = [];
+				var Sizeofcluster =  e.target.containedPushpins ;
+				for (var i = 0, len = Sizeofcluster.length; i < len; i++) {
+					//Get the location of each pushpin.
+					locs.push(Sizeofcluster[i].getLocation());
+				}
+
+				//Create a bounding box for the pushpins.
+				var bounds = Microsoft.Maps.LocationRect.fromLocations(locs);
+
+				//Zoom into the bounding box of the cluster. 
+				//Add a padding to compensate for the pixel area of the pushpins.
+				map.setView({ bounds: bounds, padding: 100 });
+			} else {
+				//Pushpin clicked, show infobox.
+				infobox.setOptions({ 
+					location: pin.getLocation(), 
+					title: pin.metadata.Title,
+			//		Latitude: pin.metadata.Latitude,
+					visible: true
+				});	 
+			}		  
+		}
+
+	
+
+	
+    </script>
+</head>
+<body>
+    <div id="myMap" style="position:relative;width:600px;height:400px;"></div>
+	<button id="getinfo" class="" data-lat="41.2428051839547" data-long="-86.1792543448348" onclick = nameoffunc()> INFO </button>
+</body>
+</html>
